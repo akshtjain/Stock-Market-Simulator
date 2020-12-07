@@ -16,7 +16,7 @@ public class StockMarketSimulator {
     //public static final String HISTORYFILEPATH = "src/stock/market/simulator/history/";
 
     // Path to history files to be used when executing program through jar file
-    public static final String HISTORYFILEPATH = "history/";
+    public static final String HISTORYFILEPATH = "src/stock/market/simulator/history/";
     
     public static void main(String[] args) throws IOException {
 
@@ -26,9 +26,10 @@ public class StockMarketSimulator {
 
         deleteHistoryFiles(new File(HISTORYFILEPATH));
         createHistoryFiles(stockProfile);
-
+//        for(stockProfile stock: stockProfile){
+//            println(stock);
+//        }
         mainWindow window = new mainWindow(accProfile, stockProfile);
-
         recalculationLoop(stockProfile, window);
 
     }
@@ -41,6 +42,7 @@ public class StockMarketSimulator {
             public void run() {
                 recalulationPrice(stockProfile);
                 window.setTextBoxValues(stockProfile);
+                window.setTotalBalance( stockProfile, window.accProfile);
 
             }
         }, 0, 5000);
@@ -116,7 +118,7 @@ public class StockMarketSimulator {
         double sellChange = priceChange
                 + (profile.getSellPrice() - ((profile.getSellPrice() * profile.getMargin()) / 2));
         double buyChange = priceChange
-                + (profile.getBuyPrice() + ((profile.getBuyPrice() * profile.getMargin()) / 2));
+                + (profile.getBuyPrice() - ((profile.getBuyPrice() * profile.getMargin()) / 2));
 
         setPriceChange(profile, sellChange, buyChange);
 
@@ -136,25 +138,12 @@ public class StockMarketSimulator {
     
     // Creating all stock profiles
     public static stockProfile[][] createAllStocks() {
-        // BASIC INFORMATION FOR CURRENCY STOCK
-        String[][] from_To = {{"EUR", "USD"}, {"GBP", "USD"}, {"EUR", "GBP"}, {"GBP", "JPY"}};
-        double[][] currencyPrice = {{1.2183, 1.2185}, {1.3767, 1.3768}, {0.88491, 0.88511},
-        {147.279, 147.320}};
-
         // BASIC INFORMATION FOR COMPANY STOCK
         String[] companyName = {"Facebook", "Apple", "Microsoft", "BMW"};
         double[] companyMargin = {0.05, 0.05, 0.05, 0.5};
         double[][] companyPrice = {{178.31, 178.56}, {178.12, 178.37}, {93.96, 93.05}, {85.87, 85.99}};
 
-        // BASIC INFORMATION FOR ECONOMY STOCK
-        String[] countryName = {"UK", "USA", "AUS", "JPY"};
-        String[] stockName = {"FTSE 100", "Dow Jones", "$AUSSIE200", "NIKKEI 225"};
-        double[] economyMargin = {0.005, 0.005, 0.01, 0.01};
-        double[][] economyPrice = {{718.18, 718.28}, {25056, 25060}, {5974.8, 5978.3}, {21634, 21642}};
-
-        stockProfile[][] stocks = {createCurrencyStock(from_To, currencyPrice),
-            createCompanyStock(companyName, companyMargin, companyPrice),
-            createEconomyStock(countryName, stockName, economyMargin, economyPrice)};
+        stockProfile[][] stocks = {createCompanyStock(companyName, companyMargin, companyPrice)};
 
         return stocks;
     }
@@ -210,6 +199,8 @@ public class StockMarketSimulator {
                 fileWriter = new FileWriter(HISTORYFILEPATH + fileName);
             }
         }
+        fileName = "totalBalance.csv";
+        fileWriter = new FileWriter(HISTORYFILEPATH + fileName);
 
     }
 

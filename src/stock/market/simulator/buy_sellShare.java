@@ -13,14 +13,14 @@ public class buy_sellShare {
 
     accountProfile accProfile;
     stockProfile[][] stocks;
-
+    ArrayList<transactionInfo> transactionRecordList;
     JFrame frame;
 
     // Class constructor
-    public buy_sellShare(accountProfile profile, stockProfile[][] stockProfiles) {
+    public buy_sellShare(accountProfile profile, stockProfile[][] stockProfiles, String btnname, ArrayList<transactionInfo> transactionRecords) {
         accProfile = profile;
         stocks = stockProfiles;
-
+        transactionRecordList = transactionRecords;
         ButtonListener listener = new ButtonListener();
 
         frame = new JFrame("Stock Simulator");
@@ -45,6 +45,7 @@ public class buy_sellShare {
 
         JLabel lblshareName = new JLabel("Share Name");
         names = new JComboBox<>(shareNames);
+        names.setSelectedItem(btnname);
 
         JLabel lblquantity = new JLabel("Quantity");
         strQuantity = new JTextField("");
@@ -85,7 +86,8 @@ public class buy_sellShare {
                 int quantity = Integer.parseInt(strQuantity.getText());
 
                 stockProfile stockToBuySell = searchAvailableStock(stockName);
-
+                
+                
                 if (stockToBuySell != null) {
 
                     if (btnName.equals("Buy")) {
@@ -115,7 +117,7 @@ public class buy_sellShare {
     }
 
     // Method that called when user wants to buy a stock
-    public void buyStock(stockProfile profile, int quantity) {
+    public void buyStock(stockProfile profile, int quantity/*,ArrayList<transactionInfo> transactionRecords */) {
         double price = profile.getBuyPrice() * quantity;
 
         if (price < accProfile.getBalance()) {
@@ -123,9 +125,8 @@ public class buy_sellShare {
                     profile.getSellPrice(), profile.getBuyPrice(), quantity);
             accProfile.setBalance(-price);
             accProfile.addStock(stock);
-
-            displayNewBalance();
-
+            transactionInfo info = new transactionInfo(profile.getProfileName(), profile.getSellPrice(), quantity, true, accProfile.getBalance());
+            transactionRecordList.add(info);
         } else {
             JOptionPane.showMessageDialog(null, "You Don't Have Enough Money", "ERROR",
                     JOptionPane.WARNING_MESSAGE);
@@ -146,7 +147,8 @@ public class buy_sellShare {
             } else {
                 profile.setQuantity(profile.getQuantity() - quantity);
             }
-
+            transactionInfo info = new transactionInfo(profile.getProfileName(), profile.getBuyPrice(), quantity, false, accProfile.getBalance());
+            transactionRecordList.add(info);
             displayNewBalance();
 
         } else {
